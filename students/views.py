@@ -18,19 +18,24 @@ def student_create(request):
         account_form = AccountCreateForm(request.POST)
         student_form = StudentForm(request.POST, request.FILES,)
         if account_form.is_valid() and student_form.is_valid():
-            # Create Account
-            account = account_form.save(commit=False)
-            account.role = Account.Role.STUDENT
-            account.save()
-            # Create Student profile
-            student = student_form.save(commit=False)
-            student.account = account
-            student.save()
-            # Add group
-            students_group = Group.objects.get(name="Students")
-            account.groups.add(students_group)
-            messages.success(request,"Student created successfully.")
-            return redirect("student_list")
+            try:
+                account = account_form.save(commit=False)
+                account.role = Account.Role.STUDENT
+                account.save()
+
+                student = student_form.save(commit=False)
+                student.account = account
+                student.save()
+
+                students_group = Group.objects.get(name="Students")
+                account.groups.add(students_group)
+
+                messages.success(request, "Student created successfully.")
+                return redirect("student_list")
+
+            except Exception as e:
+                print("ERROR:", repr(e))
+                raise
     else:
         account_form = AccountCreateForm()
         student_form = StudentForm()
